@@ -8,6 +8,7 @@ import '../controllers/auth_controller.dart';
 final authModeProvider = StateProvider<bool>((ref) => true);
 final userRoleProvider = StateProvider<String>((ref) => 'customer');
 
+// ConsumerWidget එක ConsumerStatefulWidget එකක් කළා
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -16,6 +17,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  // 1. Controllers ටික build එකෙන් පිටතට ගත්තා
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController nameController;
@@ -30,6 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
+    // Memory ඉතිරි කරගන්න මේවා අයින් කරනවා
     emailController.dispose();
     passwordController.dispose();
     nameController.dispose();
@@ -43,54 +46,98 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = ref.watch(authControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(elevation: 0, backgroundColor: Colors.transparent),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Text(isLogin ? "Login" : "Register", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            if (!isLogin) ...[
-              CustomTextField(hintText: "Name", prefixIcon: Icons.person, controller: nameController),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  _roleBtn('customer', 'Customer', userRole == 'customer'),
-                  const SizedBox(width: 10),
-                  _roleBtn('vendor', 'Business', userRole == 'vendor'),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isLogin ? "Welcome Back 👋" : "Create Account 🚀",
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 32),
+
+                if (!isLogin) ...[
+                  Row(
+                    children: [
+                      _buildRoleSelector('customer', "Customer", userRole == 'customer'),
+                      const SizedBox(width: 10),
+                      _buildRoleSelector('vendor', "Business", userRole == 'vendor'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  CustomTextField(
+                    hintText: "Full Name / Business Name", 
+                    prefixIcon: Icons.person, 
+                    controller: nameController
+                  ),
                 ],
-              ),
-            ],
-            CustomTextField(hintText: "Email", prefixIcon: Icons.email, controller: emailController),
-            CustomTextField(hintText: "Password", prefixIcon: Icons.lock, isPassword: true, controller: passwordController),
-            const SizedBox(height: 30),
-            PrimaryButton(
-              text: isLogin ? "Sign In" : "Sign Up",
-              isLoading: isLoading,
-              onPressed: () {
-                if (isLogin) {
-                  ref.read(authControllerProvider.notifier).login(context, emailController.text.trim(), passwordController.text.trim());
-                } else {
-                  ref.read(authControllerProvider.notifier).register(context, emailController.text.trim(), passwordController.text.trim(), nameController.text.trim(), userRole);
-                }
-              },
+
+                CustomTextField(hintText: "Email", prefixIcon: Icons.email, controller: emailController),
+                CustomTextField(hintText: "Password", prefixIcon: Icons.lock, isPassword: true, controller: passwordController),
+
+                const SizedBox(height: 32),
+
+                PrimaryButton(
+                  text: isLogin ? "Sign In" : "Sign Up",
+                  isLoading: isLoading,
+                  onPressed: () {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+                    final name = nameController.text.trim();
+
+                    if (isLogin) {
+                      ref.read(authControllerProvider.notifier).login(context, email, password);
+                    } else {
+                      ref.read(authControllerProvider.notifier).register(context, email, password, name, userRole);
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(isLogin ? "New here? " : "Have an account? "),
+                    GestureDetector(
+                      onTap: () => ref.read(authModeProvider.notifier).state = !isLogin,
+                      child: Text(
+                        isLogin ? "Register" : "Login", 
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => ref.read(authModeProvider.notifier).state = !isLogin,
-              child: Text(isLogin ? "Create Account" : "Back to Login"),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _roleBtn(String role, String label, bool isSelected) {
+  Widget _buildRoleSelector(String role, String label, bool isSelected) {
     return Expanded(
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: isSelected ? AppColors.primary : Colors.grey[200]),
-        onPressed: () => ref.read(userRoleProvider.notifier).state = role,
-        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black)),
+      child: GestureDetector(
+        onTap: () => ref.read(userRoleProvider.notifier).state = role,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }

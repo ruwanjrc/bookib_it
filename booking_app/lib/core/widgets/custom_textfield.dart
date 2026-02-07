@@ -3,16 +3,18 @@ import '../constants/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final String hintText;
-  final IconData? prefixIcon;
+  final IconData prefixIcon;
   final bool isPassword;
   final TextEditingController controller;
+  final TextInputType? keyboardType; // මේක අලුතෙන් එකතු කළා
 
   const CustomTextField({
     super.key,
     required this.hintText,
-    this.prefixIcon,
+    required this.prefixIcon,
     this.isPassword = false,
     required this.controller,
+    this.keyboardType, // Constructor එකටත් එකතු කළා
   });
 
   @override
@@ -20,17 +22,19 @@ class CustomTextField extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100], // Modern look එකට ලා අළු පාට පසුබිම
-        borderRadius: BorderRadius.circular(16), // ලොකු රවුම් කොන්
+        color: AppColors.inputBackground,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: TextField(
         controller: controller,
         obscureText: isPassword,
+        keyboardType: keyboardType, // මෙතනදී තමයි Keyboard එක තෝරන්නේ
+        style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.primary) : null,
-          border: InputBorder.none, // ඉරි අයින් කලා
+          hintStyle: const TextStyle(color: AppColors.textGrey),
+          prefixIcon: Icon(prefixIcon, color: AppColors.primary, size: 20),
+          border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
