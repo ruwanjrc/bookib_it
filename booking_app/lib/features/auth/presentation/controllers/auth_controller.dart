@@ -14,7 +14,8 @@ class AuthController extends StateNotifier<bool> {
     state = true;
     try {
       await _authRepository.login(email: email, password: password);
-      if (context.mounted) Navigator.pop(context); // Login වුණාම screen එක වහනවා
+      // සාර්ථක නම් Login Screen එක වහනවා
+      if (context.mounted) Navigator.pop(context); 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
@@ -26,6 +27,7 @@ class AuthController extends StateNotifier<bool> {
     state = true;
     try {
       await _authRepository.register(email: email, password: password, name: name, role: role);
+      // සාර්ථක නම් Login Screen එක වහනවා
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

@@ -9,6 +9,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -18,15 +19,19 @@ class WelcomeScreen extends StatelessWidget {
               const Spacer(),
               const Icon(Icons.storefront_rounded, size: 80, color: AppColors.primary),
               const SizedBox(height: 24),
-              const Text("Booking App", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text(
+                "Find & Book the\nBest Services",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
               const Spacer(),
               PrimaryButton(
                 text: "Get Started",
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(
+                  // සාමාන්‍ය push එකක් පාවිච්චි කරමු
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    (route) => false,
                   );
                 },
               ),

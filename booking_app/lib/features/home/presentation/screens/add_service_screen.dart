@@ -19,24 +19,29 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   Future<void> saveService() async {
     if (nameController.text.isEmpty || priceController.text.isEmpty) return;
+
     setState(() => isLoading = true);
+    final user = FirebaseAuth.instance.currentUser;
+
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      // කඩේ (Shop) ඇතුළේ 'services' කියලා collection එකකට සේව් කරනවා
       await FirebaseFirestore.instance
           .collection('shops')
           .doc(user!.uid)
           .collection('services')
           .add({
         'name': nameController.text.trim(),
-        'price': double.parse(priceController.text.trim()),
-        'durationInMinutes': int.parse(durationController.text.trim()),
+        'price': priceController.text.trim(),
+        'durationInMinutes': durationController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
       });
-      if (mounted) Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+
+      if (mounted) {
+        Navigator.pop(context); // සේව් වුණාම කලින් පේජ් එකට යනවා
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Service Added!")));
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -48,9 +53,11 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            CustomTextField(hintText: "Service Name", prefixIcon: Icons.handyman, controller: nameController),
-            CustomTextField(hintText: "Price (Rs.)", prefixIcon: Icons.attach_money, controller: priceController, keyboardType: TextInputType.number),
-            CustomTextField(hintText: "Duration (Minutes)", prefixIcon: Icons.timer, controller: durationController, keyboardType: TextInputType.number),
+            CustomTextField(hintText: "Service Name (e.g. Hair Cut)", prefixIcon: Icons.design_services, controller: nameController),
+            const SizedBox(height: 15),
+            CustomTextField(hintText: "Price (Rs.)", prefixIcon: Icons.payments, controller: priceController),
+            const SizedBox(height: 15),
+            CustomTextField(hintText: "Duration (Minutes)", prefixIcon: Icons.timer, controller: durationController),
             const SizedBox(height: 30),
             PrimaryButton(text: "Save Service", isLoading: isLoading, onPressed: saveService),
           ],
